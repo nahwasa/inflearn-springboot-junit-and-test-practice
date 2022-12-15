@@ -1,4 +1,5 @@
 package com.nahwasa.practice.javateststartjunit5;
 
-public class Study {
+public class Main {
+
 }
