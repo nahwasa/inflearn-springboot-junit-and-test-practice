@@ -1,5 +1,5 @@
 package com.nahwasa.practice.javateststartjunit5;
 
-public class Main {
-
+public enum StudyExceptionCode {
+    E001, E002
 }
