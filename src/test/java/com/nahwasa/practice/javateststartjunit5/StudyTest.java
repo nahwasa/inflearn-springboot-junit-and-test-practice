@@ -1,11 +1,13 @@
 package com.nahwasa.practice.javateststartjunit5;
 
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.*;
 
 import java.time.Duration;
-import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)   // 함수명에 언더바 붙은걸 공백으로 변환하는 규칙지정
 @DisplayName("'테스트' 스터디용 Study 클래스는")
@@ -15,10 +17,53 @@ class StudyTest {
     @DisplayName("생성시에")
     class Study_creation {
 
+        @Test
+        @DisplayName("JAVA_HOME 기준으로 JDK가 corretto-17.* 이어야만 수행한다.")
+        void conditional_test_java_home_is_corretto_17() {
+            String javaHome = System.getenv("JAVA_HOME");
+            assumeTrue(javaHome!=null && javaHome.contains("corretto-17"));
+
+            Study study = new Study();
+            assertNotNull(study);
+        }
 
         @Test
-        @DisplayName("null이 아니어야 한다") // DisplayName 지정 시 함수명으로 표기 안됨
-        void is_not_null() {
+        @DisplayName("JAVA_HOME 기준으로 JDK가 corretto-17.* 일 때와 아닐 때 다른 테스트를 수행한다.")
+        void conditional_test_java_home_is_corretto_17_or_not() {
+            String javaHome = System.getenv("JAVA_HOME");
+            Study study = new Study();
+            boolean isCorretto17 = javaHome!=null && javaHome.contains("corretto-17");
+
+            assumingThat(isCorretto17, () -> {
+                assertTrue(study.getLimit() > 0, () -> "corretto-17이라면 스터디 참가 인원은 0 이상이어야 함.");
+            });
+
+            assumingThat(!isCorretto17, () -> {
+                assertTrue(study.getLimit() > 2, () -> "corretto-17이라면 스터디 참가 인원은 2 이상이어야 함.");
+            });
+        }
+
+        @Test
+        @EnabledIfEnvironmentVariable(named = "JAVA_HOME", matches = "^.*(corretto-17).*")  //matches는 정규표현식 가능
+        @DisplayName("어노테이션으로 환경변수를 판단해서 corretto-17 일 경우 수행한다.")
+        void conditional_test_java_home_is_corretto_17_with_anotation() {
+            Study study = new Study();
+            assertNotNull(study);
+        }
+
+        @Test
+        @DisabledOnJre(JRE.JAVA_8)
+        @DisplayName("자바 버전이 8이면 실행하지 않는다.")
+        void conditional_test_jupyter_jre_not_8_check() {
+            Study study = new Study();
+            assertNotNull(study);
+        }
+
+        @Test
+        @EnabledOnJre({JRE.JAVA_17, JRE.JAVA_19})
+        @EnabledOnOs({OS.MAC, OS.WINDOWS})
+        @DisplayName("자바 버전이 17 또는 19이고, OS가 MAC이나 WINDOWS면 실행한다.")
+        void conditional_test_jupyter_annotation() {
             Study study = new Study();
             assertNotNull(study);
         }
@@ -36,6 +81,21 @@ class StudyTest {
         }
 
         @Test
+        @DisplayName("null이 아니어야 한다") // DisplayName 지정 시 함수명으로 표기 안됨
+        void is_not_null() {
+            Study study = new Study();
+            assertNotNull(study);
+        }
+
+        @Test
+        @EnabledOnJre(JRE.JAVA_17)
+        @DisplayName("자바 버전이 17이면 실행한다.")
+        void conditional_test_jupyter_jre_17_check() {
+            Study study = new Study();
+            assertNotNull(study);
+        }
+
+        @Test
         @DisplayName("스터디 최대 참가 인원은 0보다 커야 한다.")
         void maximum_limit_is_over_zero() {
             Study study = new Study();
@@ -43,6 +103,7 @@ class StudyTest {
         }
 
         @Test
+        @Disabled("일부러 실패하게 해둔 테스트이므로 Disabled")
         @DisplayName("한꺼번에 여럿 수행하는 경우 1 - assertAll 미사용 (비추)")
         void assert_all_1() {
             Study study = new Study();
@@ -54,6 +115,7 @@ class StudyTest {
         }
 
         @Test
+        @Disabled("일부러 실패하게 해둔 테스트이므로 Disabled")
         @DisplayName("한꺼번에 여럿 수행하는 경우 2 - assertAll로 묶는 경우")
         void assert_all_2() {
             Study study = new Study();
