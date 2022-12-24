@@ -18,5 +18,20 @@ dependencies {
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        includeTags 'basic_test', 'conditional_test'
+        excludeTags 'before_and_after'
+    }
+}
+
+task basicTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'basic_test'
+    }
+}
+
+task conditionalTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'conditional_test'
+    }
 }
