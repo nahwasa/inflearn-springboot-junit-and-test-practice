@@ -2,6 +2,17 @@ package com.nahwasa.practice.javateststartjunit5;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.*;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.aggregator.AggregateWith;
+import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
+import org.junit.jupiter.params.aggregator.ArgumentsAggregationException;
+import org.junit.jupiter.params.aggregator.ArgumentsAggregator;
+import org.junit.jupiter.params.converter.ArgumentConversionException;
+import org.junit.jupiter.params.converter.ConvertWith;
+import org.junit.jupiter.params.converter.SimpleArgumentConverter;
+import org.junit.jupiter.params.provider.*;
+import org.junit.jupiter.params.shadow.com.univocity.parsers.annotations.Convert;
 
 import java.time.Duration;
 
@@ -24,6 +35,108 @@ import static org.junit.jupiter.api.Assumptions.assumingThat;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)   // 함수명에 언더바 붙은걸 공백으로 변환하는 규칙지정
 @DisplayName("'테스트' 스터디용 Study 클래스는")
 class StudyTest {
+
+    @Nested
+    @DisplayName("반복적으로 수행하는 테스트")
+    class Repeated_and_parameterized_test {
+        @DisplayName("지정된 ms 이내로 연속 10번 가능한지 테스트")
+        @RepeatedTest(value = 10, name = "{displayName} running: {currentRepetition}/{totalRepetitions}")
+        void repeated_test(RepetitionInfo repetitionInfo) {
+            Study study = new Study();
+            System.out.println("반복 테스트 : " + repetitionInfo.getCurrentRepetition() + "/" + repetitionInfo.getTotalRepetitions()); // 반복 정보 획득 가능
+            assertTimeoutPreemptively(
+                    Duration.ofMillis(10),
+                    () -> study.sumEvenNumbersUnderN(10000000),
+                    "1부터 1억까지의 짝수의 합은 10ms 이내로 획득 가능해야 한다."
+            );
+        }
+
+        @DisplayName("ValueSource를 알아보기 위해 출력만 해봄")
+        @ParameterizedTest
+        @ValueSource(strings = {"에이", "비", "씨"})
+        @EmptySource    // 빈값도 추가해준다.
+        @NullSource // null 갑솓 추가해준다. Empty와 합쳐서 @NullAndEmptySource 만 써줘도 된다.
+        void string_print(String msg) {
+            System.out.println(msg);
+        }
+
+        @DisplayName("지정된 ms 이내 가능한지 테스트")
+        @ParameterizedTest(name = "{index}번째: {displayName} ms = {0}")
+        @ValueSource(ints = {10, 5, 3})
+        void parameterized_test(int ms) {
+            Study study = new Study();
+            assertTimeoutPreemptively(
+                    Duration.ofMillis(ms),
+                    () -> study.sumEvenNumbersUnderN(10000000),
+                    () -> "1부터 1억까지의 짝수의 합은 "+ ms +"ms 이내로 획득 가능해야 한다."
+            );
+        }
+
+        @DisplayName("지정된 횟수가 지정된 ms 이내 가능한지 테스트")
+        @ParameterizedTest(name = "{index}번째: {displayName} ms = {0}, cnt = {1}")
+        @CsvSource({"1, 1000", "2, 10000", "5, 100000"})
+        void parameterized_cvs_test(int ms, int num) {
+            Study study = new Study();
+            assertTimeoutPreemptively(
+                    Duration.ofMillis(ms),
+                    () -> study.sumEvenNumbersUnderN(num),
+                    () -> "1부터 "+ num +"까지의 짝수의 합은 "+ ms +"ms 이내로 획득 가능해야 한다."
+            );
+        }
+
+        @DisplayName("지정된 횟수가 지정된 ms 이내 가능한지 클래스 형태로 받아서 테스트")
+        @ParameterizedTest(name = "{index}번째: {displayName} ms = {0}, cnt = {1}")
+        @ValueSource(ints = {10, 5, 3})
+        void parameterized_class_value_source_test(@ConvertWith(TimeLimitConverter.class) TimeLimit timeLimit) {
+            System.out.println(timeLimit.ms);
+            Study study = new Study();
+            assertTimeoutPreemptively(
+                    Duration.ofMillis(timeLimit.ms),
+                    () -> study.sumEvenNumbersUnderN(10000000),
+                    () -> "1부터 10,000,000까지의 짝수의 합은 "+ timeLimit.ms +"ms 이내로 획득 가능해야 한다."
+            );
+        }
+
+        static class TimeLimitConverter extends SimpleArgumentConverter {   // 하나의 인자만 사용할 때.
+            @Override
+            protected Object convert(Object source, Class<?> targetType) throws ArgumentConversionException {
+                assertEquals(TimeLimit.class, targetType, "TimeLimit 으로만 변환 가능하다.");
+                return new TimeLimit(Integer.parseInt(source.toString()));
+            }
+        }
+
+        @DisplayName("지정된 횟수가 지정된 ms 이내 가능한지 클래스 형태로 만들어서 테스트")
+        @ParameterizedTest(name = "{index}번째: {displayName}")
+        @CsvSource({"1, 1000", "2, 10000", "5, 100000"})
+        void parameterized_class_cvs_test(ArgumentsAccessor argumentsAccessor) {  // 하나로 할땐 ArgumentConverter, 여러개는 ArgumentsAccessor 또는 아래의 Aggregator
+            TimeLimitAndNum timeLimitAndNum = new TimeLimitAndNum(argumentsAccessor.getInteger(0), argumentsAccessor.getInteger(1));
+            Study study = new Study();
+            assertTimeoutPreemptively(
+                    Duration.ofMillis(timeLimitAndNum.ms),
+                    () -> study.sumEvenNumbersUnderN(timeLimitAndNum.num),
+                    () -> "1부터 "+  timeLimitAndNum.num +"까지의 짝수의 합은 "+ timeLimitAndNum.ms +"ms 이내로 획득 가능해야 한다."
+            );
+        }
+
+        @DisplayName("지정된 횟수가 지정된 ms 이내 가능한지 Aggregator로 만들어서 테스트")
+        @ParameterizedTest(name = "{index}번째: {displayName}")
+        @CsvSource({"1, 1000", "2, 10000", "5, 100000"})
+        void parameterized_class_cvs_test_using_aggregator(@AggregateWith(TimeLimitAndNumAggregator.class) TimeLimitAndNum timeLimitAndNum) {
+            Study study = new Study();
+            assertTimeoutPreemptively(
+                    Duration.ofMillis(timeLimitAndNum.ms),
+                    () -> study.sumEvenNumbersUnderN(timeLimitAndNum.num),
+                    () -> "1부터 "+  timeLimitAndNum.num +"까지의 짝수의 합은 "+ timeLimitAndNum.ms +"ms 이내로 획득 가능해야 한다."
+            );
+        }
+
+        static class TimeLimitAndNumAggregator implements ArgumentsAggregator { // public 이거나 inner static 이어야 함
+            @Override
+            public Object aggregateArguments(ArgumentsAccessor accessor, ParameterContext context) throws ArgumentsAggregationException {
+                return new TimeLimitAndNum(accessor.getInteger(0), accessor.getInteger(1));
+            }
+        }
+    }
 
     @NestedBasicTest    // Custom Tag
     class Study_creation {
