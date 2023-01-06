@@ -25,11 +25,9 @@ import static org.junit.jupiter.api.Assumptions.assumingThat;
 @DisplayName("'테스트' 스터디용 Study 클래스는")
 class StudyTest {
 
-    @Nested
-    @DisplayName("생성시에 (항상 성공해야 하는 테스트들)")
-    @Tag("basic_test")
+    @NestedBasicTest    // Custom Tag
     class Study_creation {
-        @Test
+        @Test  // Custom Tag로 사용
         @DisplayName("초기 상태값(StudyStatus)은 INIT 이어야 한다.")
         void default_status_is_draft() {
             Study study = new Study();
@@ -87,9 +85,7 @@ class StudyTest {
     }
 
 
-    @Nested
-    @DisplayName("생성시에 (조건에 따라 동작 안하거나 일부러 실패하게 해둔 테스트)")
-    @Tag("conditional_test")
+    @NestedConditionalTest  // Custom Tag
     class Study_creation_conditional {
         @Test
         @DisplayName("JAVA_HOME 기준으로 JDK가 corretto-17.* 이어야만 수행한다.")
