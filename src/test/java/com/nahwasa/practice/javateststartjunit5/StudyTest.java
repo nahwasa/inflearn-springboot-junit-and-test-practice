@@ -37,6 +37,28 @@ import static org.junit.jupiter.api.Assumptions.assumingThat;
 class StudyTest {
 
     @Nested
+    @DisplayName("테스트 시 생성 시점을 알기위한 테스트")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS) // [2]이걸 붙여주면 새로 생성하지 않는다.
+            // 또한 이 경우 @BeforeAll, @AfterAll에 static 안붙여도 된다. StudyTest에 붙여서 전체 테스트를 새로 안만들게 할 수 도 있음.
+    class Test_instance {   // [1]기본적으론 테스트 간의 의존성을 없애기 위해 각 Test마다 새로 클래스를 생성해서 실행된다.
+        int num = 0;
+
+        @DisplayName("전역 변수 공유 관련1")
+        @Test
+        void instance_variable_share_1() {
+            System.out.println("instance_variable_1 : " + num++);
+            System.out.println("address : " + this);
+        }
+
+        @DisplayName("전역 변수 공유 관련2")
+        @Test
+        void instance_variable_share_2() {
+            System.out.println("instance_variable_2 : " + num++);
+            System.out.println("address : " + this);
+        }
+    }
+
+    @Nested
     @DisplayName("반복적으로 수행하는 테스트")
     class Repeated_and_parameterized_test {
         @DisplayName("지정된 ms 이내로 연속 10번 가능한지 테스트")
