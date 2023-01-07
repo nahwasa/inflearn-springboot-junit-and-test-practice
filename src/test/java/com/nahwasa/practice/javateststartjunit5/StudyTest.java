@@ -11,8 +11,10 @@ import org.junit.jupiter.params.aggregator.ArgumentsAggregator;
 import org.junit.jupiter.params.converter.ArgumentConversionException;
 import org.junit.jupiter.params.converter.ConvertWith;
 import org.junit.jupiter.params.converter.SimpleArgumentConverter;
-import org.junit.jupiter.params.provider.*;
-import org.junit.jupiter.params.shadow.com.univocity.parsers.annotations.Convert;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.Duration;
 
@@ -35,6 +37,36 @@ import static org.junit.jupiter.api.Assumptions.assumingThat;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)   // 함수명에 언더바 붙은걸 공백으로 변환하는 규칙지정
 @DisplayName("'테스트' 스터디용 Study 클래스는")
 class StudyTest {
+
+    @Nested
+    @DisplayName("순서대로 실행되어야 한다.")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    // 얘가 없어도 순서 정하는건되지만, 보통 순서가 있으면 애초에 의존성이 있게 하려는 거니 서로 공유하는 값도 있을 수 있으므로 라이프사이클도 적용해야 하는 경우가 많을 것 같다.
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    // 테스트는 서로 의존성없이 돌아가야 하므로 JUnit에서 정해둔 순서 그대로 두는게 맞으나, 통합테스트에서 로그인 후 실행하는 것 처럼 시나리오대로 테스트해보려면
+    // 순서를 지정해야 할 때가 있음. 그 때 TestMethodOrder 사용. 단위 테스트에선 쓰지 않는게 좋을듯하다.
+    class Test_method_order {
+        @Order(2)   // 스프링부트와 jupiter 모두 @Order가 있으므로 쥬피터쪽껄 써야 함에 주의.
+        @DisplayName("세 번째 테스트")
+        @Test
+        void order_2() {
+            System.out.println("세 번째 실행");
+        }
+
+        @Order(0)   // 숫자가 낮을수록 더 먼저 실행된다. 음수도 됨. 순서보다는 우선순위라 보는게 맞을듯. 동일한 숫자면 JUnit 나름대로 알아서 호출하는 듯 함.
+        @DisplayName("첫 번째 테스트")
+        @Test
+        void order_0() {
+            System.out.println("첫 번째 실행");
+        }
+
+        @Order(1)
+        @DisplayName("두 번째 테스트")
+        @Test
+        void order_1() {
+            System.out.println("두 번째 실행");
+        }
+    }
 
     @Nested
     @DisplayName("테스트 시 생성 시점을 알기위한 테스트")
