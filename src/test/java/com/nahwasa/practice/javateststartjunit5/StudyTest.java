@@ -2,7 +2,9 @@ package com.nahwasa.practice.javateststartjunit5;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.aggregator.AggregateWith;
 import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
@@ -36,7 +38,11 @@ import static org.junit.jupiter.api.Assumptions.assumingThat;
  */
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)   // 함수명에 언더바 붙은걸 공백으로 변환하는 규칙지정
 @DisplayName("'테스트' 스터디용 Study 클래스는")
+//@ExtendWith(WarningSlowTestExtension.class) // Extension 적용. 좀 더 확장성있게 하려면 RegisterExtension으로.
 class StudyTest {
+
+    @RegisterExtension  // 위 ExtendWith로는 이것처럼 생성자에 값을 넣어 지정해줄 순 없다. 그 차이임.
+    static WarningSlowTestExtension warningSlowTestExtension = new WarningSlowTestExtension(1);
 
     @Nested
     @DisplayName("순서대로 실행되어야 한다.")
