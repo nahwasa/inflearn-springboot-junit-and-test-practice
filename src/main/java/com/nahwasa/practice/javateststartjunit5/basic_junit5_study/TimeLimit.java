@@ -1,4 +1,4 @@
-package com.nahwasa.practice.javateststartjunit5;
+package com.nahwasa.practice.javateststartjunit5.basic_junit5_study;
 
 public class TimeLimit {
     int ms;
