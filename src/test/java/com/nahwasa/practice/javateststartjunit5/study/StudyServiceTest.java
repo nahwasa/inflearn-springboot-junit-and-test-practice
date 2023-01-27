@@ -6,6 +6,7 @@ import com.nahwasa.practice.javateststartjunit5.member.MemberService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.AdditionalAnswers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -95,4 +96,30 @@ class StudyServiceTest {
                 .isExactlyInstanceOf(RuntimeException.class);
         assertThat(memberService.findById(3L)).isEqualTo(Optional.empty());
     }
+
+    @Test
+    void createNewStudy(@Mock MemberService memberService,
+                        @Mock StudyRepository studyRepository) {
+        StudyService studyService = new StudyService(memberService, studyRepository);
+        assertThat(studyService).isNotNull();
+
+        Member member = new Member();
+        member.setId(1L);
+        member.setEmail("nahwasa@email.com");
+
+        Study study = new Study(10, "테스트");
+
+        // 요구사항: memberService 객체에 findById 메소드를 1L 값으로 호출하면 member 객체를 리턴하도록 Stubbing
+        when(memberService.findById(1L)).thenReturn(Optional.of(member));
+
+        // 요구사항 : studyRepository 객체에 save 메소드를 study 객체로 호출하면 study 객체 그대로 리턴하도록 Stubbing
+        when(studyRepository.save(argThat(param -> param instanceof Study))).thenAnswer(param -> param.getArgument(0));
+        // 요구사항 보고 위처럼 생각했는데, 강의보니 그냥 아래처럼 하면 됬음.
+        // when(studyRepository.save(study)).thenReturn(study);
+
+        studyService.createNewStudy(1L, study);
+
+        assertThat(study.getOwner()).isEqualTo(member);
+    }
+
 }
