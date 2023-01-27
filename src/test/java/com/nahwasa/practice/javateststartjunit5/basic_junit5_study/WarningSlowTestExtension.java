@@ -1,4 +1,4 @@
-package com.nahwasa.practice.javateststartjunit5;
+package com.nahwasa.practice.javateststartjunit5.basic_junit5_study;
 
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;

@@ -1,12 +1,12 @@
-package com.nahwasa.practice.javateststartjunit5;
+package com.nahwasa.practice.javateststartjunit5.basic_junit5_study;
 
-public class Study {
+public class StudyBasic {
 
-    private StudyStatus status;
+    private StudyBasicStatus status;
     private int limit;
 
-    public Study() {
-        this.status = StudyStatus.INIT;
+    public StudyBasic() {
+        this.status = StudyBasicStatus.INIT;
         this.limit = 5;
     }
 
@@ -14,7 +14,7 @@ public class Study {
         throw new RuntimeException(StudyExceptionCode.E001.name());
     }
 
-    public StudyStatus getStatus() {
+    public StudyBasicStatus getStatus() {
         return this.status;
     }
 
