@@ -7,6 +7,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.AdditionalAnswers;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -27,12 +28,17 @@ class StudyServiceTest {
      *
      * 현재는 MemberService와 StudyRepository의 구혅체가 없으므로 테스트하려면 Mock을 쓰는 수밖에 없음.
      * 구현체가 있더라도 StudyService쪽의 코드 자체만 테스트하고 싶다면 이렇게 Mock으로 주입해주면 됨.
-     * 테스트 전체에 걸쳐서 쓸때는 직전 커밋처럼 인스턴스 변수로 하고, 이 함수내에서만 쓰려면 이렇게 하면 됨.
+     * 테스트 전체에 걸쳐서 쓸때는 직전 커밋처럼 인스턴스 변수로 하고, 이 함수내에서만 쓰려면 변수에 @Mock 달아주면 됨.
+     * void memberServiceTestWithMock(@Mock MemberService memberService,
+     *                         @Mock StudyRepository studyRepository) {
+     *                         처럼
      */
 
+    @Mock MemberService memberService;
+    @Mock StudyRepository studyRepository;
+
     @Test
-    void memberServiceTestWithMock(@Mock MemberService memberService,
-                        @Mock StudyRepository studyRepository) {
+    void memberServiceTestWithMock() {
         StudyService studyService = new StudyService(memberService, studyRepository);
         assertThat(studyService).isNotNull();
 
@@ -74,8 +80,7 @@ class StudyServiceTest {
     }
 
     @Test
-    void memberServiceTestWithChainedMock(@Mock MemberService memberService,
-                        @Mock StudyRepository studyRepository) {
+    void memberServiceTestWithChainedMock() {
         StudyService studyService = new StudyService(memberService, studyRepository);
         assertThat(studyService).isNotNull();
 
@@ -98,8 +103,7 @@ class StudyServiceTest {
     }
 
     @Test
-    void createNewStudy(@Mock MemberService memberService,
-                        @Mock StudyRepository studyRepository) {
+    void createNewStudy() {
         StudyService studyService = new StudyService(memberService, studyRepository);
         assertThat(studyService).isNotNull();
 
@@ -120,6 +124,17 @@ class StudyServiceTest {
         studyService.createNewStudy(1L, study);
 
         assertThat(study.getOwner()).isEqualTo(member);
+
+
+        // StudyService에 추가로 notify 기능이 들어갔는데, stubbing 으로 뭔가 처리할수 있는게 없음. 대신 이렇게 불렸는지 확인 가능.
+        verify(memberService, times(1)).notify(any());  //memberService에서 notify가 1번 불렸어야 한다.
+        verify(memberService, never()).validate(any());  //memberService에서 위 테스트 시 validate는 호출되지 않았어야 한다.
+
+        // 불러진 순서도 중요한 경우 (findById 먼저 호출한 후 notify가 호출되어야 한다.)
+        InOrder inOrder = inOrder(memberService);
+        inOrder.verify(memberService).findById(any());
+        inOrder.verify(memberService).notify(any());
+        verifyNoMoreInteractions(memberService);    // notify 이후로는 memberService에 추가로 뭔가가 불리면 안된다.
     }
 
 }

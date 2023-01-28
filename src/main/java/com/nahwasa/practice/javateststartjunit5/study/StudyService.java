@@ -21,6 +21,10 @@ public class StudyService {
     public Study createNewStudy(Long memberId, Study study) {
         Optional<Member> member = memberService.findById(memberId);
         study.setOwner(member.orElseThrow(() -> new IllegalArgumentException("Member doesn't exist for id: '" + memberId + "'")));
+
+        Study newstudy = repository.save(study);
+        memberService.notify(newstudy); // 멤버 서비스한테 새로운 스터디가 나왔다고 알려주는 부분 -> 단순 스터빙으론 뭐 할 수 있는게 없음.
+
         return repository.save(study);
     }
 
