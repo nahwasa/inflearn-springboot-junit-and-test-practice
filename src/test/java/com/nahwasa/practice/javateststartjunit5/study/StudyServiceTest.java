@@ -3,6 +3,7 @@ package com.nahwasa.practice.javateststartjunit5.study;
 import com.nahwasa.practice.javateststartjunit5.domain.Member;
 import com.nahwasa.practice.javateststartjunit5.domain.Study;
 import com.nahwasa.practice.javateststartjunit5.member.MemberService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -184,6 +185,36 @@ class StudyServiceTest {
         // 기존 : verifyNoMoreInteractions(memberService);
         then(memberService).shouldHaveNoMoreInteractions();
 
+    }
+
+    @DisplayName("다른 사용자가 볼 수 있도록 스터디를 공개한다.")
+    @Test
+    void openStudy() {
+        /*
+        GIVEN
+         */
+        StudyService studyService = new StudyService(memberService, studyRepository);
+        Study study = new Study(10, "더 자바, 테스트");
+        assertThat(study.getOpenedDateTime()).isNull(); // 아래쪽에서 null이 아닌지 테스트할꺼니 여기선 null인지 확인해둠.
+        // 요구사항: studyRepository Mock 객체의 save 메소드를호출 시 study를 리턴하도록 만들기.
+        given(studyRepository.save(study)).willReturn(study);
+
+        /*
+        WHEN
+         */
+        studyService.openStudy(study);
+
+        /*
+        THEN
+         */
+        // 요구사항: study의 status가 OPENED로 변경됐는지 확인
+        assertThat(study.getStatus()).isEqualTo(StudyStatus.OPENED);
+
+        // 요구사항: study의 openedDataTime이 null이 아닌지 확인
+        assertThat(study.getOpenedDateTime()).isNotNull();
+
+        // 요구사항: memberService의 notify(study)가 호출 됐는지 확인.
+        then(memberService).should().notify(study);
     }
 
 }
