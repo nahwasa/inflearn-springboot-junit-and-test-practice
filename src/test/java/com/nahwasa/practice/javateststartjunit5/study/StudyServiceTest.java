@@ -3,18 +3,18 @@ package com.nahwasa.practice.javateststartjunit5.study;
 import com.nahwasa.practice.javateststartjunit5.domain.Member;
 import com.nahwasa.practice.javateststartjunit5.domain.Study;
 import com.nahwasa.practice.javateststartjunit5.member.MemberService;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.AdditionalAnswers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -104,6 +104,9 @@ class StudyServiceTest {
 
     @Test
     void createNewStudy() {
+        /*
+        GIVEN
+         */
         StudyService studyService = new StudyService(memberService, studyRepository);
         assertThat(studyService).isNotNull();
 
@@ -121,10 +124,17 @@ class StudyServiceTest {
         // 요구사항 보고 위처럼 생각했는데, 강의보니 그냥 아래처럼 하면 됬음.
         // when(studyRepository.save(study)).thenReturn(study);
 
+
+        /*
+        WHEN
+         */
         studyService.createNewStudy(1L, study);
 
-        assertThat(study.getOwner()).isEqualTo(member);
 
+        /*
+        THEN
+         */
+        assertThat(study.getOwner()).isEqualTo(member);
 
         // StudyService에 추가로 notify 기능이 들어갔는데, stubbing 으로 뭔가 처리할수 있는게 없음. 대신 이렇게 불렸는지 확인 가능.
         verify(memberService, times(1)).notify(any());  //memberService에서 notify가 1번 불렸어야 한다.
@@ -135,6 +145,45 @@ class StudyServiceTest {
         inOrder.verify(memberService).findById(any());
         inOrder.verify(memberService).notify(any());
         verifyNoMoreInteractions(memberService);    // notify 이후로는 memberService에 추가로 뭔가가 불리면 안된다.
+    }
+
+    @Test
+    void createNewStudyWithBddStyleMockito() {  // GIVEN 위치에 Mockito의 when() 함수가 들어가니 뭔가 이상함. BDDMockito로 ㄱㄱ
+        /*
+        GIVEN
+         */
+        StudyService studyService = new StudyService(memberService, studyRepository);
+        assertThat(studyService).isNotNull();
+
+        Member member = new Member();
+        member.setId(1L);
+        member.setEmail("nahwasa@email.com");
+
+        Study study = new Study(10, "테스트");
+
+        // 기존 : when(memberService.findById(1L)).thenReturn(Optional.of(member));
+        given(memberService.findById(1L)).willReturn(Optional.of(member));
+
+        // 기존 : when(studyRepository.save(study)).thenReturn(study);
+        given(studyRepository.save(study)).willReturn(study);
+
+
+        /*
+        WHEN
+         */
+        studyService.createNewStudy(1L, study);
+
+        /*
+        THEN
+         */
+        assertThat(study.getOwner()).isEqualTo(member);
+
+        // 기존 : verify(memberService, times(1)).notify(any());
+        then(memberService).should(times(1)).notify(any());
+
+        // 기존 : verifyNoMoreInteractions(memberService);
+        then(memberService).shouldHaveNoMoreInteractions();
+
     }
 
 }
