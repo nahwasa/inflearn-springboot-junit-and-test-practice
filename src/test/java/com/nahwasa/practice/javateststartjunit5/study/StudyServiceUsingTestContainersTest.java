@@ -3,38 +3,56 @@ package com.nahwasa.practice.javateststartjunit5.study;
 import com.nahwasa.practice.javateststartjunit5.domain.Member;
 import com.nahwasa.practice.javateststartjunit5.domain.Study;
 import com.nahwasa.practice.javateststartjunit5.member.MemberService;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
-@Disabled
-class StudyServiceUsingDockerDbTest {
+@Testcontainers
+@ActiveProfiles("test")
+class StudyServiceUsingTestContainersTest {
 
     /**
-     * 메인은 포스트그레를 쓰고, 테스트는 h2를 쓸 때, DB가 다름으로써 트랜잭션 Isolation 레벨 등이 달라 차이점이 생길 가능성이 있음.
-     * 그러므로 테스트에서도 동일하게 포스트그레 DB를 쓰려고 함.
-     * 도커에 DB를 띄우고 (docker-scripts.sh) 그걸 가지고 테스트를 한 내용임.
-     * 도커를 가지고 DB를 관리해야되서 번거로울 수 있음.
-     * (도커로 띄웠을때만 성공하므로 Disable
+     * 도커로 직접 띄워서 테스트해보려면 도커까지 관리해줘야함.
+     * TestContainers 사용해서 이 부분을 해결 가능.
+     * 다만, docker가 있긴 해야함. (윈도우라면 Docker Desktop 실행되있어야함)
+     * 그러니 그냥 직접 도커 세팅 안하게 해주는 매크로 정도로 보임.
+     *
+     * 장점 : 별도로 외부의 docker나 DB 설정 없이 코드만 가지고 테스트 가능
+     * 단점 : 많이 느림 ㅠ
      */
 
     @Mock MemberService memberService;
     @Autowired StudyRepository studyRepository;
+
+    @Container
+    private static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer()  // static 없으면 테스트마다 컨테이너 새로 생성
+            .withDatabaseName("study");
+
+    @BeforeAll
+    static void beforeAll() {
+        postgreSQLContainer.start();
+    }
+
+    @AfterAll
+    static void afterAll() {
+        postgreSQLContainer.stop();
+    }
 
     @Test
     void createNewStudy() {
