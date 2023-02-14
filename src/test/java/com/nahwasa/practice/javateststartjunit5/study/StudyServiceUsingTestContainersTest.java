@@ -24,7 +24,6 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
 @Testcontainers
-@ActiveProfiles("test")
 class StudyServiceUsingTestContainersTest {
 
     /**
