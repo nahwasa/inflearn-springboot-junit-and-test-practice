@@ -22,11 +22,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    runtimeOnly 'com.h2database:h2'
+//    runtimeOnly 'com.h2database:h2'
     implementation 'de.codecentric:chaos-monkey-spring-boot:2.7.0'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-    testRuntimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'org.postgresql:postgresql'
     testImplementation 'org.testcontainers:junit-jupiter:1.17.6'
     testImplementation 'org.testcontainers:postgresql:1.17.6'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
