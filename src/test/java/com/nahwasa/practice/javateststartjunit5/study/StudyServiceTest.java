@@ -100,7 +100,7 @@ class StudyServiceTest {
         assertThat(memberService.findById(1L).get().getEmail()).isEqualTo("nahwasa@gmail.com");
         assertThatThrownBy(() -> memberService.findById(2L))
                 .isExactlyInstanceOf(RuntimeException.class);
-        assertThat(memberService.findById(3L)).isEqualTo(Optional.empty());
+        assertThat(memberService.findById(3L)).isNotPresent();
     }
 
     @Test
@@ -135,7 +135,7 @@ class StudyServiceTest {
         /*
         THEN
          */
-        assertThat(study.getOwner()).isEqualTo(member);
+        assertThat(study.getOwnerId()).isEqualTo(1L);
 
         // StudyService에 추가로 notify 기능이 들어갔는데, stubbing 으로 뭔가 처리할수 있는게 없음. 대신 이렇게 불렸는지 확인 가능.
         verify(memberService, times(1)).notify(any());  //memberService에서 notify가 1번 불렸어야 한다.
@@ -177,7 +177,7 @@ class StudyServiceTest {
         /*
         THEN
          */
-        assertThat(study.getOwner()).isEqualTo(member);
+        assertThat(study.getOwnerId()).isEqualTo(1L);
 
         // 기존 : verify(memberService, times(1)).notify(any());
         then(memberService).should(times(1)).notify(any());

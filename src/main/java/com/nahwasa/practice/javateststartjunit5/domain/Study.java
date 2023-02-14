@@ -4,7 +4,6 @@ import com.nahwasa.practice.javateststartjunit5.study.StudyStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,8 +23,7 @@ public class Study {
     private int limitCount;
     private String name;
     private LocalDateTime openedDateTime;
-    @ManyToOne
-    private Member owner;
+    private Long ownerId;
 
     public Study(int limit, String name) {
         this.limitCount = limit;
