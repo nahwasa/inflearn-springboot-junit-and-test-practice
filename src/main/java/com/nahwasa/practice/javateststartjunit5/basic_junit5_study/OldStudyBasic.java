@@ -1,11 +1,11 @@
 package com.nahwasa.practice.javateststartjunit5.basic_junit5_study;
 
-public class StudyBasic {
+public class OldStudyBasic {
 
     private StudyBasicStatus status;
     private int limit;
 
-    public StudyBasic() {
+    public OldStudyBasic() {
         this.status = StudyBasicStatus.INIT;
         this.limit = 5;
     }
