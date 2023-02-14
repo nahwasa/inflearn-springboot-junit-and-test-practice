@@ -2,6 +2,7 @@ package com.nahwasa.practice.javateststartjunit5.study;
 
 import com.nahwasa.practice.javateststartjunit5.domain.Member;
 import com.nahwasa.practice.javateststartjunit5.domain.Study;
+import com.nahwasa.practice.javateststartjunit5.domain.StudyStatus;
 import com.nahwasa.practice.javateststartjunit5.member.MemberService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
