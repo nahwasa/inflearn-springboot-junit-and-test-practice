@@ -2,6 +2,7 @@ package com.nahwasa.practice.javateststartjunit5.study;
 
 import com.nahwasa.practice.javateststartjunit5.domain.Member;
 import com.nahwasa.practice.javateststartjunit5.domain.Study;
+import com.nahwasa.practice.javateststartjunit5.domain.StudyStatus;
 import com.nahwasa.practice.javateststartjunit5.member.MemberService;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;

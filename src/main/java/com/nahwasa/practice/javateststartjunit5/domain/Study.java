@@ -1,6 +1,5 @@
 package com.nahwasa.practice.javateststartjunit5.domain;
 
-import com.nahwasa.practice.javateststartjunit5.study.StudyStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;

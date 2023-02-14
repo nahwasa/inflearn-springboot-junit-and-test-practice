@@ -2,7 +2,10 @@ package com.nahwasa.practice.javateststartjunit5.study;
 
 import com.nahwasa.practice.javateststartjunit5.domain.Member;
 import com.nahwasa.practice.javateststartjunit5.domain.Study;
+import com.nahwasa.practice.javateststartjunit5.domain.StudyStatus;
 import com.nahwasa.practice.javateststartjunit5.member.MemberService;
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.junit.AnalyzeClasses;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
